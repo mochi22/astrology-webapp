@@ -5,6 +5,7 @@ export type Punishment = {
   content: string
   category: string
   createdAt: string
+  likes: number
 }
 
 export async function fetchRandom(category?: string): Promise<Punishment> {
