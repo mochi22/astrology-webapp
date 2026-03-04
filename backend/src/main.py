@@ -91,14 +91,23 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func
+from fastapi.middleware.cors import CORSMiddleware
 import random
 
 from src.database import engine, Base, AsyncSessionLocal
 from src.model import Punishment
-from src.schemas import PunishmentCreate, PunishmentResponse
+from src.schemas import PunishmentCreate, PunishmentUpdate, PunishmentResponse
 
 app = FastAPI()
 
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://astrology-webapp-alpha.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # DB作成
 @app.on_event("startup")
@@ -163,3 +172,72 @@ async def get_random_punishment(
         return {"id": 0, "content": "データがありません", "category": "none"}
 
     return random.choice(punishments)
+
+@app.post("/punishments/{punishment_id}/like")
+async def like_punishment(
+    punishment_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Punishment).where(Punishment.id == punishment_id)
+    )
+    punishment = result.scalar_one_or_none()
+
+    if not punishment:
+        return {"error": "Not found"}
+
+    punishment.likes += 1
+    await db.commit()
+    await db.refresh(punishment)
+
+    return punishment
+
+@app.get("/punishments/popular", response_model=list[PunishmentResponse])
+async def get_popular(
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Punishment).order_by(Punishment.likes.desc())
+    )
+    return result.scalars().all()
+
+@app.delete("/punishments/{punishment_id}")
+async def delete_punishment(
+    punishment_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Punishment).where(Punishment.id == punishment_id)
+    )
+    punishment = result.scalar_one_or_none()
+
+    if not punishment:
+        return {"error": "Not found"}
+
+    await db.delete(punishment)
+    await db.commit()
+
+    return {"message": "Deleted"}
+
+# mofify
+@app.put("/punishments/{punishment_id}", response_model=PunishmentResponse)
+async def update_punishment(
+    punishment_id: int,
+    data: PunishmentUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(
+        select(Punishment).where(Punishment.id == punishment_id)
+    )
+    punishment = result.scalar_one_or_none()
+
+    if not punishment:
+        return {"error": "Not found"}
+
+    punishment.content = data.content
+    punishment.category = data.category
+
+    await db.commit()
+    await db.refresh(punishment)
+
+    return punishment

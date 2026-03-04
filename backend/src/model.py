@@ -7,3 +7,4 @@ class Punishment(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(String, nullable=False)
     category = Column(String, nullable=False)
+    likes = Column(Integer, default=0)

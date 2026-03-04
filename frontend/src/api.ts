@@ -31,3 +31,15 @@ export async function createPunishment(content: string, category: string) {
 
   return res.json()
 }
+
+export const likePunishment = async (id: number) => {
+  const res = await fetch(`${BASE_URL}/punishments/${id}/like`, {
+    method: "POST",
+  })
+  return res.json()
+}
+
+export const fetchPopular = async () => {
+  const res = await fetch(`${BASE_URL}/punishments/popular`)
+  return res.json()
+}
