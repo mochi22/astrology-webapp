@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "content": "語尾に『にゃん』をつける",
+    "category": "light",
+    "createdAt": "2026-03-04T10:00:00"
+  },
+  {
+    "id": 2,
+    "content": "変顔で写真を撮る",
+    "category": "embarrassing",
+    "createdAt": "2026-03-04T10:00:00"
+  },
+  {
+    "id": 3,
+    "content": "腕立て10回",
+    "category": "physical",
+    "createdAt": "2026-03-04T10:00:00"
+  },
+  {
+    "id": 4,
+    "content": "うんち",
+    "category": "light",
+    "createdAt": "2026-03-04T08:57:23.622492"
+  }
+]
